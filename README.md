@@ -1,0 +1,1 @@
+# egosms-wordpress-plugin
