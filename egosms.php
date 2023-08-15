@@ -92,6 +92,10 @@ function send_message() {
     $user_table = $wpdb->prefix . "egosms_user";
     $message_table = $wpdb->prefix . "egosms_messages";
 
+    // Get website domain name
+    $website_url = get_home_url();
+    $website_domain = parse_url($website_url, PHP_URL_HOST);
+
     // Get the id of the last order received
     function get_last_order_id(){
         global $wpdb;
@@ -103,31 +107,27 @@ function send_message() {
         WHERE post_type LIKE 'shop_order'
         AND post_status IN ('$statuses')
         " );
+        
         return reset($last_order);
 
     }
 
     $order_id = get_last_order_id();
+    $order = wc_get_order(get_last_order_id());
+    $order_data  = $order->get_data();
+    $customer_last_name = $order_data['billing']['last_name'];
+    $country = $order_data['billing']['country'];
+    $phone_number = $order_data['billing']['phone'];
 
     // Function for handling phone numbers from different countries
-    function get_phone_number(){
-
-        $order = wc_get_order(get_last_order_id());
-        $order_data  = $order->get_data();
-        $country = $order_data['billing']['country'];
-        $phone_number = $order_data['billing']['phone'];
-
-        if($country == 'UG'){
-            if($phone_number[0] == '0'){
-                $sent_phone = substr_replace(substr($phone_number, 1), '256', 0, 0);
-            }else{
-                $sent_phone = $phone_number;
-            }
+    if($country == 'UG'){
+        if($phone_number[0] == '0'){
+            $sent_phone = substr_replace(substr($phone_number, 1), '256', 0, 0);
         }else{
             $sent_phone = $phone_number;
         }
-
-        return $sent_phone;
+    }else{
+        $sent_phone = $phone_number;
     }
 
     $result = $wpdb->get_row ( "SELECT username, password, sender_id, message FROM $user_table " ); 
@@ -137,8 +137,8 @@ function send_message() {
     $password = $result->password;
     $sender = $result->sender_id;
     $my_message = $result->message;
-    $number = get_phone_number();
-    $message = 'Your order No. is '.$order_id.'. '.$my_message;
+    $number = $sent_phone;
+    $message = 'Hello '.$customer_last_name.', your order No. is '.$order_id.' from '.$website_domain.'. '.$my_message;
 
     require_once plugin_dir_path( __FILE__ ) . 'includes/API.php';
  
@@ -159,7 +159,6 @@ add_action( 'woocommerce_new_order', 'send_message', 1, 1 );
 function egosms_page(){
     require_once 'pages/admin.php';
 }
-
 
 /**
  * Begins execution of the plugin.
