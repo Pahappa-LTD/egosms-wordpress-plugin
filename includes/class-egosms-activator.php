@@ -3,8 +3,8 @@
 /**
  * Fired during plugin activation
  *
- * @link       https://github.com/ABHarop
- * @since      1.0.0
+ * @link       https://github.com/Pahappa
+ * @since      1.0.1
  *
  * @package    Egosms
  * @subpackage Egosms/includes
@@ -15,7 +15,7 @@
  *
  * This class defines all code necessary to run during the plugin's activation.
  *
- * @since      1.0.0
+ * @since      1.0.1
  * @package    Egosms
  * @subpackage Egosms/includes
  * @author     Arop Boniface <arop@pahappa.com>
@@ -27,7 +27,7 @@ class Egosms_Activator {
 	 *
 	 * Long Description.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public static function activate() {
 		global $wpdb;

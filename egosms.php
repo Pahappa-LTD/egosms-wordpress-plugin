@@ -8,15 +8,15 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://github.com/ABHarop
- * @since             1.0.0
+ * @link              https://github.com/Pahappa
+ * @since             1.0.1
  * @package           Egosms
  *
  * @wordpress-plugin
  * Plugin Name:       EgoSMS
- * Plugin URI:        https://github.com/ABHarop/egosms
+ * Plugin URI:        https://github.com/Pahappa/
  * Description:       The EgoSMS Plugin integrates the EgoSMS Bulk messaging platform to your WordPress website.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Arop Boniface
  * Author URI:        https://github.com/ABHarop
  * License:           GPL-2.0+
@@ -32,10 +32,10 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
+ * Start at version 1.0.1 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'EGOSMS_VERSION', '1.0.0' );
+define( 'EGOSMS_VERSION', '1.0.1' );
 define('PLUGIN_PATH',plugin_dir_path(__FILE__));
 define('PLUGIN_URL',plugin_dir_url(__FILE__));
 define('PLUGIN',plugin_basename(__FILE__));
@@ -74,6 +74,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-egosms.php';
 
 // Display the egosms on the left panel
 function egosms(){
+    
     add_menu_page(
         __( 'EgoSMS', 'textdomain' ),
         'EgoSMS',
@@ -82,10 +83,11 @@ function egosms(){
         'egosms_page',
         PLUGIN_URL . '/assets/img/icon.png', 110,
     );
+
 }
 
-add_action( 'admin_menu','egosms' );
 
+// This function handles sending of text messages
 function send_message() {
 
     global $wpdb;
@@ -149,12 +151,89 @@ function send_message() {
     }else{
         $message_status = 0;
         $wpdb->query("INSERT INTO $message_table(recipient, message, message_status) VALUES('$number', '$message', '$message_status')");
-    
     }
- 
+
  }
 
+
+// Function for handling SMS notification
+function send_order_status_sms_notification( $order_id, $old_status, $new_status ) {
+
+    global $wpdb;
+    $user_table = $wpdb->prefix . "egosms_user";
+    $message_table = $wpdb->prefix . "egosms_messages";
+
+    // Get the order object
+    $order = wc_get_order( $order_id );
+
+    // Get the customer's phone number from the order
+    $billing_customer_phone = $order->get_billing_phone();
+    $billing_customer_last_name = $order->get_billing_last_name();
+
+    // Define the message content based on the new order status
+    switch ( $new_status ) {
+        case 'processing':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is now being processed.';
+            break;
+        case 'pending':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is pending payment.';
+            break;
+        case 'refunded':
+            $update_message = 'Hello '.$billing_customer_last_name.', your payment for order No. '.$order_id.' has been refunded.';
+            break;
+        case 'failed':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has failed.';
+            break;
+        case 'draft':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is now being processed.';
+            break;
+        case 'on-hold':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has been put on hold.';
+            break;
+        case 'completed':
+            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has been completed and is ready for delivery.';
+            break;
+        case 'cancelled':
+            $update_message = 'Hello '.$billing_customer_last_name.', unfortunately, your order No. '.$order_id.' has been cancelled.';
+            break;
+        default:
+            return; // Don't send SMS for other statuses
+    }
+
+    // Retrieve EgoSMS details
+    $result = $wpdb->get_row ( "SELECT username, password, sender_id, message FROM $user_table " ); 
+
+    if($billing_customer_phone[0] == '0'){
+        $customer_phone = substr_replace(substr($billing_customer_phone, 1), '256', 0, 0);
+    }else{
+        $customer_phone = $billing_customer_phone;
+    }
+
+    // Required parameters for EgoSMS
+    $username = $result->username;
+    $password = $result->password;
+    $sender = $result->sender_id;
+    $number = $customer_phone;
+    $message = $update_message;
+
+    // Send the SMS
+    require_once plugin_dir_path( __FILE__ ) . 'includes/API.php';
+
+    if(SendSMS($username, $password, $sender, $number, $message) == 'OK')
+    {
+        $message_status = 1;
+        $wpdb->query("INSERT INTO $message_table(recipient, message, message_status) VALUES('$number', '$message', '$message_status')");
+    }else{
+        $message_status = 0;
+        $wpdb->query("INSERT INTO $message_table(recipient, message, message_status) VALUES('$number', '$message', '$message_status')");
+    } 
+
+}
+
+// Register all actions here
+add_action( 'admin_menu','egosms' );
 add_action( 'woocommerce_new_order', 'send_message', 1, 1 );
+add_action( 'woocommerce_order_status_changed', 'send_order_status_sms_notification', 10, 3 );
 
 function egosms_page(){
     require_once 'pages/admin.php';
@@ -167,7 +246,7 @@ function egosms_page(){
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    1.0.0
+ * @since    1.0.1
  */
 function run_egosms() {
 
