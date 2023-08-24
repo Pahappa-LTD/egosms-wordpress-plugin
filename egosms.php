@@ -163,6 +163,10 @@ function send_order_status_sms_notification( $order_id, $old_status, $new_status
     $user_table = $wpdb->prefix . "egosms_user";
     $message_table = $wpdb->prefix . "egosms_messages";
 
+    // Get website domain name
+    $website_url = get_home_url();
+    $website_domain = parse_url($website_url, PHP_URL_HOST);
+
     // Get the order object
     $order = wc_get_order( $order_id );
 
@@ -173,28 +177,28 @@ function send_order_status_sms_notification( $order_id, $old_status, $new_status
     // Define the message content based on the new order status
     switch ( $new_status ) {
         case 'processing':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is now being processed.';
+            $update_message = 'Hello '.$billing_customer_last_name.'. Great News! Your '.$website_domain.' order No. '.$order_id.' has been received and currently being processed. Thank you for shopping with us.';
             break;
         case 'pending':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is pending payment.';
+            $update_message = 'Hello '.$billing_customer_last_name.', your '.$website_domain.' order No. '.$order_id.' is almost ready! To finalize the process, please complete your payment. Thank you for shopping with us.';
             break;
         case 'refunded':
-            $update_message = 'Hello '.$billing_customer_last_name.', your payment for order No. '.$order_id.' has been refunded.';
+            $update_message = 'Hello '.$billing_customer_last_name.', your '.$website_domain.' order No. '.$order_id.' payment has been refunded. We apologize for any inconvenience.';
             break;
         case 'failed':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has failed.';
+            $update_message = 'Hello '.$billing_customer_last_name.', your '.$website_domain.' order No. '.$order_id.' has failed. We apologize for any inconvenience.';
             break;
         case 'draft':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' is now being processed.';
+            $update_message = 'Hello '.$billing_customer_last_name.', your '.$website_domain.' order No. '.$order_id.' is awaiting processing, please be patient.';
             break;
         case 'on-hold':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has been put on hold.';
+            $update_message = 'Hello '.$billing_customer_last_name.'! We regret to inform you that your '.$website_domain.' order No. '.$order_id.' is currently on hold. Our team is working to resolve this issue promptly.';
             break;
         case 'completed':
-            $update_message = 'Hello '.$billing_customer_last_name.', your order No. '.$order_id.' has been completed and is ready for delivery.';
+            $update_message = 'Hello '.$billing_customer_last_name.'. Fantastic news! Your '.$website_domain.' order No. '.$order_id.' is officially complete. Thank you for shopping with us - enjoy your purchase and feel free to reach out with any questions.';
             break;
         case 'cancelled':
-            $update_message = 'Hello '.$billing_customer_last_name.', unfortunately, your order No. '.$order_id.' has been cancelled.';
+            $update_message = 'Hello '.$billing_customer_last_name.'. Regretfully, your '.$website_domain.' order No. '.$order_id.' has been cancelled. For help or future shopping, please reach out. We apologize for any inconvenience.';
             break;
         default:
             return; // Don't send SMS for other statuses
