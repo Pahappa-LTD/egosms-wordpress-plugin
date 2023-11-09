@@ -49,9 +49,7 @@
 
 
 /* Style the tab content */
-
-.tabcontent {
-    display: none;
+.content-body {
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
@@ -62,15 +60,29 @@
     font-weight: 500;
 }
 
-
 /* Style for status messages */
-
 .success-message {
     font-size: 15px;
     color: green;
+    margin-top: 30px;
 }
 
 .failure-message {
     font-size: 15px;
     color: red;
+    margin-top: 30px;
+}
+
+.ttable{
+    border: 1px solid black;
+}
+
+.tdtable{
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.regular-textarea{
+    resize: none;
+    size: 500px;
 }
