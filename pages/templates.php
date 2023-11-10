@@ -21,7 +21,7 @@
                     foreach ($result as $print) {
                        echo "
                             <tr>
-                                <td width='50%'>$print->order_status</td>                            
+                                <td width='50%' style='text-transform:capitalize'>$print->order_status</td>                            
                                 <td width='50%'><a href='" .home_url(). '/wp-admin/admin.php?page=template&template='.$print->order_status. "'>Manage</a></td>
                             </tr>
                         ";

@@ -9,14 +9,14 @@
      * that starts the plugin.
      *
      * @link              https://github.com/Pahappa
-     * @since             1.0.1
+     * @since             1.0.3
      * @package           Egosms
      *
      * @wordpress-plugin
      * Plugin Name:       EgoSMS
      * Plugin URI:        https://github.com/Pahappa/
      * Description:       The EgoSMS Plugin integrates the EgoSMS Bulk messaging platform to your WordPress website.
-     * Version:           1.0.1
+     * Version:           1.0.3
      * Author:            Arop Boniface
      * Author URI:        https://github.com/ABHarop
      * License:           GPL-2.0+
@@ -32,10 +32,10 @@
 
     /**
      * Currently plugin version.
-     * Start at version 1.0.1 and use SemVer - https://semver.org
+     * Start at version 1.0.3 and use SemVer - https://semver.org
      * Rename this for your plugin and update it as you release new versions.
      */
-    define( 'EGOSMS_VERSION', '1.0.1' );
+    define( 'EGOSMS_VERSION', '1.0.3' );
     define('PLUGIN_PATH',plugin_dir_path(__FILE__));
     define('PLUGIN_URL',plugin_dir_url(__FILE__));
     define('PLUGIN',plugin_basename(__FILE__));
@@ -76,17 +76,26 @@
     // Display the egosms on the left panel
     function egosms(){
         add_menu_page(
-            __( 'EgoSMS', 'textdomain' ),        
-            'EgoSMS',                
-            'manage_options',    
-            'EgoSMS', 
+            'EgoSMS',        
+            'EgoSMS',             
+            'manage_options', 
+            'egosms',    
             'message_page',
             PLUGIN_URL . '/assets/img/icon.png', 110,
         );
 
         // Add a submenu page under the "EgoSMS" menu
         add_submenu_page(
-            'EgoSMS',           // Parent menu slug
+            'egosms',
+            'Message Page',
+            'Message',
+            'manage_options',
+            'message',
+            'message_page'
+        );
+
+        add_submenu_page(
+            'egosms',           // Parent menu slug
             'Template Page',    // Page title
             'Templates',        // Menu title
             'manage_options',   // Capability (who can access)
@@ -95,7 +104,7 @@
         );
 
         add_submenu_page(
-            'EgoSMS',
+            'egosms',
             'History Page',
             'History',
             'manage_options',
@@ -104,7 +113,7 @@
         );
 
         add_submenu_page(
-            'EgoSMS',
+            'egosms',
             'Settings Page',
             'Settings',
             'manage_options',
@@ -120,6 +129,11 @@
             'template',
             'single_template_page'
         );
+
+        // Remove submenu add_menu_page
+        global $submenu;
+        unset( $submenu['egosms'][0] );
+
     }
 
     // Define callback functions to display the different pages
@@ -379,7 +393,6 @@
     add_action( 'woocommerce_new_order', 'send_message', 1, 1 );
     add_action( 'woocommerce_order_status_changed', 'send_order_status_sms_notification', 10, 3 );
 
-
     /**
      * Begins execution of the plugin.
      *
@@ -387,7 +400,7 @@
      * then kicking off the plugin from this point in the file does
      * not affect the page life cycle.
      *
-     * @since    1.0.1
+     * @since    1.0.3
      */
     function run_egosms() {
 
