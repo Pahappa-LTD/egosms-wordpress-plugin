@@ -45,6 +45,10 @@
                     <td class="tdtable">[order_number]</td>
                     <td class="tdtable">Order Number generated when the order was made.</td>
                 </tr>
+                <tr>
+                    <td class="tdtable">[amount]</td>
+                    <td class="tdtable">Total amount paid for the order.</td>
+                </tr>
             </tbody>
         </table><br>
         <?php 
