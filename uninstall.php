@@ -20,7 +20,7 @@
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
  * @link       https://github.com/ABHarop
- * @since      1.0.0
+ * @since      1.0.3
  *
  * @package    Egosms
  */
@@ -42,6 +42,7 @@ global $wpdb;
 $egoTableArray = [
 	$wpdb->prefix . "egosms_user",
 	$wpdb->prefix . "egosms_messages",
+	$wpdb->prefix . "egosms_template",
 ];
 foreach($egoTableArray as $table){
 	$wpdb->query("DROP TABLE IF EXISTS $table");
